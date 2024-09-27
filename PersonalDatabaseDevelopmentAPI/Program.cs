@@ -1,4 +1,7 @@
 
+using PersonalDatabaseDevelopmentAPI.Contexts;
+using PersonalDatabaseDevelopmentAPI.Models;
+
 namespace PersonalDatabaseDevelopmentAPI
 {
     public class Program
@@ -7,7 +10,12 @@ namespace PersonalDatabaseDevelopmentAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDB"));
+            builder.Services.AddSingleton<MongoDBService>();
+
             // Add services to the container.
+
+            builder.Services.AddScoped<MongoDBService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
