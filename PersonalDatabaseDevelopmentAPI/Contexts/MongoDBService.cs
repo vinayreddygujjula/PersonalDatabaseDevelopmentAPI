@@ -20,6 +20,8 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
         {
             MongoClient client = new MongoClient(mongoDBSettings.Value.ConnectionURI);
             _database = client.GetDatabase(mongoDBSettings.Value.DatabaseName);
+            _categoryCollection = _database.GetCollection<BsonDocument>(mongoDBSettings.Value.CategoryCollection);
+            _subCategoryCollection = _database.GetCollection<BsonDocument>(mongoDBSettings.Value.SubCategoryCollection);
         }
 
         public IMongoCollection<BsonDocument> GetCategoryCollection(IOptions<MongoDBSettings> mongoDBSettings)
@@ -78,7 +80,7 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
         {
             BsonDocument document = new BsonDocument
             {
-                {"category_id", userId},
+                {"user_id", userId},
                 {"name", name},
             };
             try
@@ -96,7 +98,7 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             var update = Builders<BsonDocument>.Update.Set("name", name);
-            var updateResult = await _subCategoryCollection.UpdateOneAsync(filter, update);
+            var updateResult = await _categoryCollection.UpdateOneAsync(filter, update);
             return updateResult.ModifiedCount > 0;
         }
 
