@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using PersonalDatabaseDevelopmentAPI.Contexts;
+using Newtonsoft.Json;
 
 namespace PersonalDatabaseDevelopmentAPI.Controllers
 {
@@ -33,7 +34,7 @@ namespace PersonalDatabaseDevelopmentAPI.Controllers
             try
             {
                 var results = await _mongoDbService.GetCategoriesByUserId(userId);
-                return Ok(results);
+                return Ok(results.ToJson());
             }
             catch (Exception ex)
             {
@@ -70,5 +71,19 @@ namespace PersonalDatabaseDevelopmentAPI.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+        //[HttpGet("searchcategory/{name}")]
+        //public async Task<ActionResult> SearchCategory(string name)
+        //{
+        //    try
+        //    {
+        //        var results = await _mongoDbService.SearchCategory(name);
+        //        return Ok(results);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, "Internal Server Error "+ ex);
+        //    }
+        //}
     }
 }

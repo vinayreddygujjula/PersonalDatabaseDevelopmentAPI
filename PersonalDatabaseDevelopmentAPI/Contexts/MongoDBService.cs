@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using PersonalDatabaseDevelopmentAPI.Models;
-using System;
-using System.ComponentModel;
 
 namespace PersonalDatabaseDevelopmentAPI.Contexts
 {
@@ -37,9 +33,7 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
         public async Task<List<BsonDocument>> GetCategoriesByUserId(string userId)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("user_id", userId);
-            var results = await _categoryCollection.Find(filter).ToListAsync();
-            if (results != null) return results;
-            return new List<BsonDocument>();
+            return await _categoryCollection.Find(filter).ToListAsync();
         }
 
         public async Task<List<BsonDocument>> GetSubCategoriesByCategoryId(string categoryId)
@@ -131,6 +125,13 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             var result = await _subCategoryCollection.DeleteOneAsync(filter);
             return result.DeletedCount > 0;
+        }
+
+        public async Task<BsonDocument> SearchCategory(string name)
+        {
+            var filter = Builders<BsonDocument>.Filter.Eq("name", name);
+            var document = await _categoryCollection.Find(filter).FirstOrDefaultAsync();
+            return document;
         }
     }
 }
