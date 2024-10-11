@@ -96,6 +96,14 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
             return updateResult.ModifiedCount > 0;
         }
 
+        public async Task<bool> UpdateSubCategoryName(BsonObjectId id, string name)
+        {
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+            var update = Builders<BsonDocument>.Update.Set("name", name);
+            var updateResult = await _subCategoryCollection.UpdateOneAsync(filter, update);
+            return updateResult.ModifiedCount > 0;
+        }
+
         public async Task<bool> UpdateSubCategory(BsonObjectId id, [FromBody] dynamic requestData)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);

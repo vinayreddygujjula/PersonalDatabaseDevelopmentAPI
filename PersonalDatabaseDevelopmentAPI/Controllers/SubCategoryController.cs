@@ -57,6 +57,21 @@ namespace PersonalDatabaseDevelopmentAPI.Controllers
             }
         }
 
+        [HttpPut("updatesubcategoryname/{id}/{name}")]
+        public async Task<ActionResult> UpdateSubCategoryName(string id, string name)
+        {
+            try
+            {
+                var objectId = new BsonObjectId(new ObjectId(id));
+                bool result = await _mongoDbService.UpdateSubCategoryName(objectId, name);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
         [HttpPut("updatesubcategory/{id}")]
         public async Task<ActionResult> UpdateSubCategory(string id, [FromBody] dynamic requestData)
         {

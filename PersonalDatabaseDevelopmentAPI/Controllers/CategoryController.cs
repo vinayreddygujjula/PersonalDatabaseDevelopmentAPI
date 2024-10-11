@@ -34,7 +34,7 @@ namespace PersonalDatabaseDevelopmentAPI.Controllers
             try
             {
                 var results = await _mongoDbService.GetCategoriesByUserId(userId);
-                return Ok(results.ToJson());
+                return Ok(results);
             }
             catch (Exception ex)
             {

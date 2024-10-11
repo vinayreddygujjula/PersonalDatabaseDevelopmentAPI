@@ -21,6 +21,20 @@ namespace PersonalDatabaseDevelopmentAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", policyBuilder =>
+                {
+                    policyBuilder.WithOrigins("https://localhost:3000")
+                                 .AllowAnyHeader()
+                                 .AllowAnyMethod()
+                                 .AllowCredentials();
+                });
+            });
+
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             var app = builder.Build();
 
@@ -32,6 +46,8 @@ namespace PersonalDatabaseDevelopmentAPI
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowSpecificOrigin");
 
             app.UseAuthorization();
 
