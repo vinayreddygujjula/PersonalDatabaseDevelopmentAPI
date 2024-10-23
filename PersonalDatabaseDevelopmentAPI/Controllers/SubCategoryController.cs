@@ -103,5 +103,52 @@ namespace PersonalDatabaseDevelopmentAPI.Controllers
             }
         }
 
+        [HttpDelete("subcategory/deletefield/{id}")]
+        public async Task<IActionResult> RemoveField(string id, [FromBody] dynamic requestData)
+        {
+            try
+            {
+                var objectId = new BsonObjectId(new ObjectId(id));
+                bool result = await _mongoDbService.DeleteSubCategoryField(objectId, requestData);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("uploadFile/{id}")]
+        public async Task<IActionResult> UploadFile(string id, [FromBody] dynamic requestData)
+        {
+            dynamic file = null;
+            var fieldName = string.Empty;
+            foreach (var field in requestData.fields)
+            {
+                file = field.file;
+                fieldName = field.Name;
+            }
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            try
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    var success = await _mongoDbService.UploadFile(id, fieldName, stream, file.FileName);
+                    if (success)
+                        return Ok(new { message = "File uploaded successfully." });
+                    else
+                        return StatusCode(500, "File upload failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }
