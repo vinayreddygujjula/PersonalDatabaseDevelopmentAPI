@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.IO;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.GridFS;
 using PersonalDatabaseDevelopmentAPI.Models;
 
 namespace PersonalDatabaseDevelopmentAPI.Contexts
@@ -41,7 +43,7 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
             var filter = Builders<BsonDocument>.Filter.Eq("category_id", categoryId);
             var projection = Builders<BsonDocument>.Projection.Include("_id").Include("name");
             var results = await _subCategoryCollection.Find(filter).Project(projection).ToListAsync();
-            if(results != null ) return results;
+            if (results != null) return results;
             return new List<BsonDocument>();
         }
 
@@ -56,8 +58,8 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
         {
             BsonDocument document = new BsonDocument
             {
-                {"category_id", categoryId},
-                {"name", name},
+                { "category_id", categoryId },
+                { "name", name },
             };
             try
             {
@@ -74,8 +76,8 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
         {
             BsonDocument document = new BsonDocument
             {
-                {"user_id", userId},
-                {"name", name},
+                { "user_id", userId },
+                { "name", name },
             };
             try
             {
@@ -115,6 +117,7 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
                 BsonValue fieldValue = BsonValue.Create((string)field.Value);
                 updateDefinitions.Add(updateDefinitionBuilder.Set(fieldName, fieldValue));
             }
+
             var combinedUpdate = updateDefinitionBuilder.Combine(updateDefinitions);
             var result = await _subCategoryCollection.UpdateOneAsync(filter, combinedUpdate);
             return result.ModifiedCount > 0;
@@ -140,6 +143,31 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
             var filter = Builders<BsonDocument>.Filter.Eq("name", name);
             var document = await _categoryCollection.Find(filter).FirstOrDefaultAsync();
             return document;
+        }
+
+        public async Task<bool> DeleteSubCategoryField(BsonObjectId id, [FromBody] dynamic requestData)
+        {
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+            string fieldName = string.Empty;
+            foreach (var field in requestData.fields)
+            {
+                fieldName = field.Name;
+            }
+
+            var update = Builders<BsonDocument>.Update.Unset(fieldName);
+            var result = await _subCategoryCollection.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
+
+        public async Task<bool> UploadFile(string id, string fieldName, Stream fileStream, string fileName)
+        {
+            var gridFSBucket = new GridFSBucket(_database);
+            var fileId = await gridFSBucket.UploadFromStreamAsync(fileName, fileStream);
+            var fileIdString = fileId.ToString();
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(id));
+            var update = Builders<BsonDocument>.Update.Set(fieldName, fileIdString);
+            var result = await _subCategoryCollection.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
         }
     }
 }
