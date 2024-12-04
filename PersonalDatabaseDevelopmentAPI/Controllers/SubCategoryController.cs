@@ -117,38 +117,5 @@ namespace PersonalDatabaseDevelopmentAPI.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        [HttpPost("uploadFile/{id}")]
-        public async Task<IActionResult> UploadFile(string id, [FromBody] dynamic requestData)
-        {
-            dynamic file = null;
-            var fieldName = string.Empty;
-            foreach (var field in requestData.fields)
-            {
-                file = field.file;
-                fieldName = field.Name;
-            }
-
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest("No file uploaded.");
-            }
-
-            try
-            {
-                using (var stream = file.OpenReadStream())
-                {
-                    var success = await _mongoDbService.UploadFile(id, fieldName, stream, file.FileName);
-                    if (success)
-                        return Ok(new { message = "File uploaded successfully." });
-                    else
-                        return StatusCode(500, "File upload failed.");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
     }
 }

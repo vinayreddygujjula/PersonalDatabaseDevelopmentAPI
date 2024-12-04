@@ -71,19 +71,5 @@ namespace PersonalDatabaseDevelopmentAPI.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
-
-        //[HttpGet("searchcategory/{name}")]
-        //public async Task<ActionResult> SearchCategory(string name)
-        //{
-        //    try
-        //    {
-        //        var results = await _mongoDbService.SearchCategory(name);
-        //        return Ok(results);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Internal Server Error "+ ex);
-        //    }
-        //}
     }
 }

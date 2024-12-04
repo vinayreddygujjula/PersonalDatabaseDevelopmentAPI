@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.GridFS;
 using PersonalDatabaseDevelopmentAPI.Models;
 
 namespace PersonalDatabaseDevelopmentAPI.Contexts
@@ -123,7 +122,6 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
             return result.ModifiedCount > 0;
         }
 
-
         public async Task<bool> DeleteCategory(BsonObjectId id)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
@@ -138,13 +136,6 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
             return result.DeletedCount > 0;
         }
 
-        public async Task<BsonDocument> SearchCategory(string name)
-        {
-            var filter = Builders<BsonDocument>.Filter.Eq("name", name);
-            var document = await _categoryCollection.Find(filter).FirstOrDefaultAsync();
-            return document;
-        }
-
         public async Task<bool> DeleteSubCategoryField(BsonObjectId id, [FromBody] dynamic requestData)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
@@ -155,17 +146,6 @@ namespace PersonalDatabaseDevelopmentAPI.Contexts
             }
 
             var update = Builders<BsonDocument>.Update.Unset(fieldName);
-            var result = await _subCategoryCollection.UpdateOneAsync(filter, update);
-            return result.ModifiedCount > 0;
-        }
-
-        public async Task<bool> UploadFile(string id, string fieldName, Stream fileStream, string fileName)
-        {
-            var gridFSBucket = new GridFSBucket(_database);
-            var fileId = await gridFSBucket.UploadFromStreamAsync(fileName, fileStream);
-            var fileIdString = fileId.ToString();
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(id));
-            var update = Builders<BsonDocument>.Update.Set(fieldName, fileIdString);
             var result = await _subCategoryCollection.UpdateOneAsync(filter, update);
             return result.ModifiedCount > 0;
         }
